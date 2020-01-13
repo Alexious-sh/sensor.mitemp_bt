@@ -80,14 +80,6 @@ sensor:
     hcitool_active: False
 ```
 
-IMPORTANT. This component uses temporary file to accumulate sensor data between sensor updates. Therefore, to reduce the number of write operations and extend the life of the physical medium (especially if it is an SD card, as is often the case with Raspberry PI), it is recommended to move the `/tmp` mount point to RAM (tmpfs). To do this, add the following line to the end of your `/etc/fstab` and restart the host:
-
-```shell
-tmpfs  /tmp  tmpfs  rw,nosuid,nodev 0 0
-```
-
-You can check the `/tmp` mount point with the command `mount | grep /tmp`. If as a result you see something like `tmpfs on /tmp type tmpfs (rw, nosuid, nodev, relatime)`, then everything is fine.
-
 ### Configuration Variables
 
 #### rounding

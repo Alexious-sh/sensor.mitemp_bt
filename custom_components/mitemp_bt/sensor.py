@@ -1,7 +1,6 @@
 """Xiaomi Mi BLE monitor integration."""
 from datetime import timedelta
 import logging
-from memory_tempfile import MemoryTempfile
 import os
 import statistics as sts
 import struct
@@ -20,6 +19,8 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import track_point_in_utc_time
 import homeassistant.util.dt as dt_util
+
+from memory_tempfile import MemoryTempfile
 
 from .const import (
     DEFAULT_ROUNDING,
@@ -204,6 +205,11 @@ class BLEScanner:
     hcitool = None
     hcidump = None
     memtempfile = MemoryTempfile(fallback=True)
+    if memtempfile.found_mem_tempdir():
+        _LOGGER.debug("Memory based tempdirs: %s", memtempfile.get_usable_mem_tempdir_paths())
+        _LOGGER.debug("Using now: %s", memtempfile.gettempdir())
+    else:
+        _LOGGER.debug("No memory based tempdirs found! Falling back to %s", memtempfile.gettempdir())
     tempf = memtempfile.TemporaryFile(mode="w+b")
     devnull = (
         subprocess.DEVNULL
