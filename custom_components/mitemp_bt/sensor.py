@@ -1,12 +1,12 @@
 """Xiaomi Mi BLE monitor integration."""
 from datetime import timedelta
 import logging
+from memory_tempfile import MemoryTempfile
 import os
 import statistics as sts
 import struct
 import subprocess
 import sys
-import tempfile
 import voluptuous as vol
 
 from homeassistant.const import (
@@ -203,7 +203,8 @@ class BLEScanner:
 
     hcitool = None
     hcidump = None
-    tempf = tempfile.TemporaryFile(mode="w+b")
+    memtempfile = MemoryTempfile(fallback=True)
+    tempf = memtempfile.TemporaryFile(mode="w+b")
     devnull = (
         subprocess.DEVNULL
         if sys.version_info > (3, 0)
