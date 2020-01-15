@@ -6,7 +6,6 @@ import statistics as sts
 import struct
 import subprocess
 import sys
-import tempfile
 import voluptuous as vol
 
 from homeassistant.const import (
@@ -203,7 +202,6 @@ class BLEScanner:
 
     hcitool = None
     hcidump = None
-    tempf = tempfile.TemporaryFile(mode="w+b")
     devnull = (
         subprocess.DEVNULL
         if sys.version_info > (3, 0)
@@ -221,7 +219,7 @@ class BLEScanner:
             hcitoolcmd, stdout=self.devnull, stderr=self.devnull
         )
         self.hcidump = subprocess.Popen(
-            ["hcidump", "--raw", "hci"], stdout=self.tempf, stderr=self.devnull
+            ["hcidump", "--raw", "hci"], stdout=subprocess.PIPE, stderr=self.devnull
         )
 
     def stop(self):
@@ -239,16 +237,13 @@ class BLEScanner:
         self.hcidump.communicate()
         self.hcitool.kill()
         self.hcitool.communicate()
-        self.tempf.close()
 
     def messages(self):
         """Get data from hcidump."""
         data = ""
         try:
             _LOGGER.debug("reading hcidump...")
-            self.tempf.flush()
-            self.tempf.seek(0)
-            for line in self.tempf:
+            for line in self.hcidump.stdout:
                 try:
                     sline = line.decode()
                 except AttributeError:
@@ -265,8 +260,6 @@ class BLEScanner:
         except RuntimeError as error:
             _LOGGER.error("Error during reading of hcidump: %s", error)
             data = ""
-        self.tempf.seek(0)
-        self.tempf.truncate(0)
         yield data
 
 
